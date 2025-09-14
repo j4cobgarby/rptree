@@ -12,7 +12,9 @@ The above screenshot shows **rptree** with a bash instance as the parent. In thi
 
 ## Why?
 
-It can be useful for debugging, especially for developing things like shells. The specific use case I made this for is the Operating Systems course at Chalmers University.
+It can be useful for debugging, especially for developing things like shells. The specific use case I made this for is the Operating Systems course at Chalmers University. I'm a teaching assistant in that course, and I think/hope that it will help with understanding the task to implement a shell.
+
+It can also be pretty useful for just seeing what processes bash makes. Try watching `man gcc`, for example, and see how many processes are spawned. Or, how many processes would you expect to be created when bash simply runs `ls`?
 
 ## Usage
 

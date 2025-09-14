@@ -44,3 +44,14 @@ Simply run `rptree <the pid of your process>`, and everything should work. There
 
  - **(h)top** provides similar features to rptree, in that it can display a process tree in real time. It doesn't, however, provide a simple way to view and follow the tree of one specific process, as far as I can tell. It also doesn't show the log of events, which can be really useful for debugging.
  - **pstree** is quite similar, superficially, but with major differences. Aside from the fact that pstree also does not show a log of ptrace events, it also is not a real-time view, it just prints the tree and exits. You could do something like `watch pstree`, but you will then miss quickly exitting processes.
+
+## Future Work
+
+There are quite a few things that would further improve this.
+
+ - It's not easy at a glance to distinguish between all the different PIDs.
+   - Option A: colour-code the PIDs using random colours from a palette, so that you can more easily spot recurring PID actions.
+   - Option B: based on the PIDs on the screen, highlight just the last few digits of each to emphasize the different part of the number.
+ - Writing the history to a log file.
+ - Options to change filtering specific event types. Maybe you only want to see execs, for example.
+ - It would be nice to show the first arg of each process' commandline next to EVERY instance of its PID being shown.

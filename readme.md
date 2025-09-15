@@ -49,6 +49,9 @@ Simply run `rptree <the pid of your process>`, and everything should work. There
 
 There are quite a few things that would further improve this.
 
+ - Save the tree state after each event, and use the up and down arrow keys to view historical tree states rather than the live one.
+ - When viewing historical trees, as well as in general if desired, it would be good to be able to freeze the whole process tree's execution.
+ - Show any pipes between processes.
  - It's not easy at a glance to distinguish between all the different PIDs.
    - Option A: colour-code the PIDs using random colours from a palette, so that you can more easily spot recurring PID actions.
    - Option B: based on the PIDs on the screen, highlight just the last few digits of each to emphasize the different part of the number.

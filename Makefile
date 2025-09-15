@@ -1,10 +1,12 @@
-OBJS=history.o utils.o main.o
+OBJS=history.o utils.o rptree.o
 EXE=rptree
+CC=gcc
+LD=gcc
+
+CFLAGS+=-Wall -Wextra
 CFLAGS+=-g
 
-all: $(OBJS)
-	gcc -o $(EXE) $^
+$(EXE): $(OBJS)
 
 clean:
-	rm -f $(OBJS)
-	rm -f $(EXE)
+	rm -f $(OBJS) $(EXE)

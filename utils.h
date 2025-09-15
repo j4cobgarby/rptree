@@ -46,23 +46,6 @@ char *get_cmdline(pid_t pid);
 
 #define LL_FOREACH(list, el) for (struct ll_node *el = *list; el; el = el->next)
 
-// list: An ll_list* type.
-// result: A pointer type, which will get set to either NULL or the found data
-// pred: An expression which can use `data`, which is cast to be the same type
-// as result, returning true if found
-#define LL_FIND(list, result, pred)                                            \
-  {                                                                            \
-    auto m = *list;                                                            \
-    result = NULL;                                                             \
-    for (; m; m = m->next) {                                                   \
-      typeof(result) data = (typeof(result))m->data;                           \
-      if (pred) {                                                              \
-        result = data;                                                         \
-        break;                                                                 \
-      }                                                                        \
-    }                                                                          \
-  }
-
 #define LL_FIND_POP(list, result, pred)                                        \
   {                                                                            \
     result = NULL;                                                             \
@@ -81,32 +64,6 @@ char *get_cmdline(pid_t pid);
                                                                                \
         result = data;                                                         \
         break;                                                                 \
-      }                                                                        \
-    }                                                                          \
-  }
-
-#define LL_DELETE_SOME(list, pred, cleanup)                                    \
-  {                                                                            \
-    auto m = *list;                                                            \
-    while (m) {                                                                \
-      void *data = (void *)m->data;                                            \
-      if (pred) {                                                              \
-        if (m->prev) {                                                         \
-          m->prev->next = m->next;                                             \
-        } else {                                                               \
-          *list = m->next;                                                     \
-        }                                                                      \
-                                                                               \
-        if (m->next) {                                                         \
-          m->next->prev = m->prev;                                             \
-        }                                                                      \
-                                                                               \
-        cleanup;                                                               \
-        struct ll_node *next = m->next;                                        \
-        free(m);                                                               \
-        m = next;                                                              \
-      } else {                                                                 \
-        m = m->next;                                                           \
       }                                                                        \
     }                                                                          \
   }

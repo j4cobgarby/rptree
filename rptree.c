@@ -93,8 +93,8 @@ void initialise_tree(tree *root) {
     // Capture any child processes with ptrace which are already alive at
     // startup. Any others made later will be caught automatically.
     if (ptrace(PTRACE_SEIZE, cpid, 0,
-               PTRACE_O_TRACEFORK | PTRACE_O_TRACECLONE | PTRACE_O_TRACEVFORK |
-                   PTRACE_O_TRACEEXEC | PTRACE_O_TRACEEXIT) == -1) {
+               PTRACE_O_TRACEFORK | PTRACE_O_TRACEEXEC | PTRACE_O_TRACEEXIT) ==
+        -1) {
       perror("ptrace seize");
       exit(EXIT_FAILURE);
     }
@@ -112,15 +112,15 @@ void tracer(pid_t rootpid) {
   int status;
 
   if (ptrace(PTRACE_SEIZE, rootpid, 0,
-             PTRACE_O_TRACEFORK | PTRACE_O_TRACECLONE | PTRACE_O_TRACEVFORK |
-                 PTRACE_O_TRACEEXEC | PTRACE_O_TRACEEXIT) == -1) {
+             PTRACE_O_TRACEFORK | PTRACE_O_TRACEEXEC | PTRACE_O_TRACEEXIT) ==
+      -1) {
     perror("ptrace seize");
     exit(EXIT_FAILURE);
   }
 
-  screenfull(root);
-
   while (1) {
+    screenfull(root);
+
     pid_t wpid = waitpid(-1, &status, __WALL);
     if (wpid == -1) {
       if (errno == EINTR)
@@ -132,7 +132,6 @@ void tracer(pid_t rootpid) {
     if (WIFEXITED(status)) {
       treedel(root, wpid);
       push_history(EV_EXIT, wpid, -1, NULL, NULL);
-      screenfull(root);
       continue;
     }
 
@@ -142,23 +141,14 @@ void tracer(pid_t rootpid) {
       if ((status >> 16) == PTRACE_EVENT_FORK) {
         unsigned long new_pid;
         ptrace(PTRACE_GETEVENTMSG, wpid, 0, &new_pid);
-        treeadd(root, wpid, new_pid);
         push_history(EV_FORK, wpid, new_pid, NULL, NULL);
-        screenfull(root);
-        // } else if ((status >> 16) == PTRACE_EVENT_VFORK) {
-        //   unsigned long new_pid;
-        //   ptrace(PTRACE_GETEVENTMSG, wpid, 0, &new_pid);
-        //   printf("[VFORK] parent=%d child=%lu\n", wpid, new_pid);
-        // } else if ((status >> 16) == PTRACE_EVENT_CLONE) {
-        //   unsigned long new_pid;
-        //   ptrace(PTRACE_GETEVENTMSG, wpid, 0, &new_pid);
-        //   printf("[CLONE] parent=%d child=%lu\n", wpid, new_pid);
+
+        treeadd(root, wpid, new_pid);
       } else if ((status >> 16) == PTRACE_EVENT_EXEC) {
         push_history(EV_EXEC, wpid, -1, NULL, get_cmdline(wpid));
-        screenfull(root);
       }
 
-      if (ptrace(PTRACE_CONT, wpid, 0, 0) == -1) {
+      if (ptrace(PTRACE_CONT, wpid, 0, sig) == -1) {
         perror("ptrace cont");
         break;
       }

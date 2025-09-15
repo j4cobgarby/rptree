@@ -138,12 +138,44 @@ void print_proc_cmdline(pid_t pid) {
   free(cmdline);
 }
 
+void get_stdfds(pid_t pid, char **links, const size_t bufsz) {
+  char fnbuf[48];
+
+  for (int i = 0; i < 3; i++) {
+    snprintf(fnbuf, sizeof(fnbuf), "/proc/%d/fd/%d", pid, i);
+
+    if (readlink(fnbuf, links[i], bufsz) == -1) {
+      strncpy(links[i], "<error>", bufsz);
+      continue;
+    }
+  }
+}
+
 void print_pid_info(pid_t pid) {
+  static const char *fdsymbs[] = {"Out", "In", "Err"};
+
   printf(C_YELLOW "%d" C_RESET, pid);
 
-  printf(" " C_CYAN);
+  // Print process's cmdline args
+  printf(" " C_BLUE);
   print_proc_cmdline(pid);
   printf(C_RESET);
+
+  // Print process's std file descriptors
+  char **fdlinks = malloc(sizeof(char *) * 3);
+  for (int i = 0; i < 3; i++) {
+    fdlinks[i] = malloc(17);
+  }
+  get_stdfds(pid, fdlinks, 16);
+  for (int i = 0; i < 3; i++) {
+    // Only print pipe fds
+    if (CFG_SHOW_ALL_STDFD || strncmp(fdlinks[i], "pipe:", 5) == 0) {
+      printf(C_MAGENTA " (" C_RESET "%s" C_MAGENTA " %s)" C_RESET, fdsymbs[i],
+             fdlinks[i]);
+    }
+    free(fdlinks[i]);
+  }
+  free(fdlinks);
 }
 
 void treeprint_impl(tree *root, const char *pref, int edge) {

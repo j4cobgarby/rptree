@@ -32,13 +32,13 @@ void print_history() {
 
     switch (ev->type) {
     case EV_EXIT:
-      printf("%3d" C_RED " Exit " C_DIM "%d\n" C_RESET, ev->seq, ev->pid);
+      printf("%3d" C_RED " Exit " "%d\n" C_RESET, ev->seq, ev->pid);
       break;
     case EV_FORK:
-      printf("%3d" C_GREEN " Fork " C_DIM "%d -> %d\n" C_RESET, ev->seq, ev->pid, ev->new_pid);
+      printf("%3d" C_GREEN " Fork " "%d -> %d\n" C_RESET, ev->seq, ev->pid, ev->new_pid);
       break;
     case EV_EXEC:
-      printf("%3d" C_CYAN " Exec " C_DIM "%d, '%s'\n" C_RESET, ev->seq, ev->pid, ev->exec_cmdline);
+      printf("%3d" C_BLUE " Exec " "%d, '%s'\n" C_RESET, ev->seq, ev->pid, ev->exec_cmdline);
     case EV_NONE:
       break;
     }

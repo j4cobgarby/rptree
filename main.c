@@ -2,6 +2,7 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/ptrace.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -20,13 +21,50 @@ void screenfull(tree *root) {
   treeprint(root);
 }
 
+void usage(const char *exe) {
+  fprintf(stderr, "Usage:\t%s PID\n\t%s -s ARGS...\n", exe, exe);
+  exit(EXIT_FAILURE);
+}
+
 int main(int argc, char *argv[]) {
   if (argc < 2) {
-    fprintf(stderr, "Usage: %s PID\n", argv[0]);
-    return 1;
+    usage(argv[0]);
   }
 
-  tracer(atoi(argv[1]));
+  pid_t pid;
+
+  if (strcmp(argv[1], "-s") == 0) {
+    fprintf(stderr, "Not implemented yet...\n");
+    exit(EXIT_FAILURE);
+    // printf("Executing '%s'\n", argv[2]);
+    // pid = fork();
+    // if (pid == 0) {
+    //   if (ptrace(PTRACE_TRACEME, 0, NULL, NULL) == -1) {
+    //     perror("ptrace TRACEME");
+    //     exit(EXIT_FAILURE);
+    //   }
+    //   if (execvp(argv[2], &argv[2]) == -1) {
+    //     perror("execvp");
+    //     exit(EXIT_FAILURE);
+    //   }
+    // }
+    // printf("Will trace child, pid = %d\n", pid);
+  } else {
+    if (argc > 2) {
+      fprintf(stderr, "Too many arguments.\n");
+      usage(argv[0]);
+    }
+
+    errno = 0;
+    char *endptr;
+    pid = strtoul(argv[1], &endptr, 10);
+    if (errno || endptr == argv[1]) {
+      fprintf(stderr, "Invalid PID: '%s'\n", argv[1]);
+      usage(argv[0]);
+    }
+  }
+
+  tracer(pid);
 
   return 0;
 }
@@ -58,7 +96,7 @@ void initialise_tree(tree *root) {
                PTRACE_O_TRACEFORK | PTRACE_O_TRACECLONE | PTRACE_O_TRACEVFORK |
                    PTRACE_O_TRACEEXEC | PTRACE_O_TRACEEXIT) == -1) {
       perror("ptrace seize");
-      exit(1);
+      exit(EXIT_FAILURE);
     }
     ll_push_back(&root->children, ctree);
     initialise_tree(ctree);
@@ -77,7 +115,7 @@ void tracer(pid_t rootpid) {
              PTRACE_O_TRACEFORK | PTRACE_O_TRACECLONE | PTRACE_O_TRACEVFORK |
                  PTRACE_O_TRACEEXEC | PTRACE_O_TRACEEXIT) == -1) {
     perror("ptrace seize");
-    exit(1);
+    exit(EXIT_FAILURE);
   }
 
   screenfull(root);

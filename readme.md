@@ -10,6 +10,8 @@ A real-time process tree viewer and fork/exec/exit event monitor.
 
 The above screenshot shows **rptree** with a bash instance as the parent. In this example, the user ran `ls` followed by `cat | grep word | wc -l`; only the latter is running at the time of the screenshot, whereas `ls` finished, as can be seen on line 6 of the history.
 
+Notice that for processes whose stdout/in/err are attached to pipes, the pipe inode number is displayed in the tree.
+
 ## Why?
 
 It can be useful for debugging, especially for developing things like shells. The specific use case I made this for is the Operating Systems course at Chalmers University. I'm a teaching assistant in that course, and I think/hope that it will help with understanding the task to implement a shell.
@@ -32,13 +34,19 @@ cp rptree /usr/bin
 cp rptree_completion.sh /etc/bash_completion.d
 ```
 
-You'll probably need to run those with `sudo`.
+You'll probably need to run those with `sudo`. You can of course run it locally without installing system-wide.
 
 ### Using **rptree**
 
-Speaking of which, you probably also need to use `sudo` when running **rptree**, because otherwise you likely won't have permission to attach to other processes.
+**rptree** uses `ptrace` to monitor your process. By default, you will need sudo (or similar) to attach to arbitrary processes. If you have access to sudo, simply run `sudo rptree <the pid of your process>`, and everything should work.
 
-Simply run `rptree <the pid of your process>`, and everything should work. There's nothing else to it, because you can't interact with the program in any way (yet).
+### Without sudo
+
+Luckily, it's possible to attach without using sudo. The idea is that a child can call `prctl(PR_SET_TRACER, PR_SET_PTRACER_ANY)` on itself to allow any process to trace it. If you run your process-to-monitor with the included `traceme` program (e.g. `traceme bash` to run bash with tracing globally allowed), then you can `rptree` it without sudo!
+
+Be careful though! This method allows _any_ other process on the system, so it's recommended not to do this with sensitive programs, and/or on systems which others are using.
+
+The reason `traceme` uses `PR_SET_PTRACER_ANY` rather than specifically allowing `rptree` is just because it's way less fiddly.
 
 ## Related Work
 

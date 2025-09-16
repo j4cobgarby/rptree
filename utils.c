@@ -152,7 +152,7 @@ void get_stdfds(pid_t pid, char **links, const size_t bufsz) {
 }
 
 void print_pid_info(pid_t pid) {
-  static const char *fdsymbs[] = {"Out", "In", "Err"};
+  static const char *fdsymbs[] = {"In", "Out", "Err"};
 
   printf(C_YELLOW "%d" C_RESET, pid);
 

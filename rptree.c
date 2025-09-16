@@ -146,6 +146,9 @@ void tracer(pid_t rootpid) {
         treeadd(root, wpid, new_pid);
       } else if ((status >> 16) == PTRACE_EVENT_EXEC) {
         push_history(EV_EXEC, wpid, -1, NULL, get_cmdline(wpid));
+      } else if ((status >> 16) == PTRACE_EVENT_EXIT) {
+        treedel(root, wpid);
+        push_history(EV_EXIT, wpid, -1, NULL, NULL);
       }
 
       if (ptrace(PTRACE_CONT, wpid, 0, sig) == -1) {

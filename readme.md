@@ -42,6 +42,14 @@ You'll probably need to run those with `sudo`. You can of course run it locally 
 
 ### Without sudo
 
+In short, do this:
+
+```sh
+./traceme <your program>
+# then, from another terminal,
+./rptree <the pid which traceme reported>
+```
+
 Luckily, it's possible to attach without using sudo. The idea is that a child can call `prctl(PR_SET_TRACER, PR_SET_PTRACER_ANY)` on itself to allow any process to trace it. If you run your process-to-monitor with the included `traceme` program (e.g. `traceme bash` to run bash with tracing globally allowed), then you can `rptree` it without sudo!
 
 Be careful though! This method allows _any_ other process on the system, so it's recommended not to do this with sensitive programs, and/or on systems which others are using.

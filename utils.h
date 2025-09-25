@@ -12,7 +12,7 @@
 #define C_RESET "\033[0m"
 #define C_DIM "\033[2m"
 
-#define CFG_SHOW_ALL_STDFD 0
+#define CFG_SHOW_ALL_STDFD 1
 
 struct ll_node {
   void *data;

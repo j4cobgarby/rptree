@@ -4,7 +4,8 @@
 hist_event history[HISTORY_SZ] = {{EV_NONE}};
 static int hptr = 0;
 
-void push_history(enum hist_type t, pid_t pid, pid_t new_pid, tree *snapshot, char *exec_cmdline) {
+void push_history(enum hist_type t, pid_t pid, pid_t new_pid, tree *snapshot,
+                  char *exec_cmdline) {
   static int counter = 0;
 
   hist_event *ev = &history[hptr++];
@@ -25,6 +26,9 @@ void push_history(enum hist_type t, pid_t pid, pid_t new_pid, tree *snapshot, ch
 
 void print_history() {
   int pptr = hptr;
+
+  printf("  #  Type    PID   Details\n");
+  printf("-------------------------------\n");
   do {
     const hist_event *const ev = &history[--pptr];
     if (pptr == -1)
@@ -32,13 +36,16 @@ void print_history() {
 
     switch (ev->type) {
     case EV_EXIT:
-      printf("%3d" C_RED " Exit " "%d\n" C_RESET, ev->seq, ev->pid);
+      printf("%4d" C_RED " EXIT %7d \n" C_RESET, ev->seq, ev->pid);
       break;
     case EV_FORK:
-      printf("%3d" C_GREEN " Fork " "%d -> %d\n" C_RESET, ev->seq, ev->pid, ev->new_pid);
+      printf("%4d" C_GREEN " FORK %7d -> %d\n" C_RESET, ev->seq,
+             ev->pid, ev->new_pid);
       break;
     case EV_EXEC:
-      printf("%3d" C_BLUE " Exec " "%d, '%s'\n" C_RESET, ev->seq, ev->pid, ev->exec_cmdline);
+      printf("%4d" C_BLUE " EXEC %7d '%s'\n" C_RESET, ev->seq, ev->pid,
+             ev->exec_cmdline);
+      break;
     case EV_NONE:
       break;
     }

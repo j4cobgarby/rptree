@@ -151,51 +151,124 @@ void get_stdfds(pid_t pid, char **links, const size_t bufsz) {
   }
 }
 
-void print_pid_info(pid_t pid) {
-  static const char *fdsymbs[] = {"In", "Out", "Err"};
+int important_file(const char *fname) {
+  return strncmp(fname, "pipe:", 5) == 0;
+}
 
-  printf(C_YELLOW "%d" C_RESET, pid);
+struct proc_stat {
+  pid_t pid;
+  char state;
+  pid_t ppid;
+  pid_t pgrp;
+  int session;
+  int tty_nr;
+  pid_t tpgid;
+};
 
-  // Print process's cmdline args
-  printf(" " C_BLUE);
-  print_proc_cmdline(pid);
-  printf(C_RESET);
+struct proc_stat read_stat(pid_t pid) {
+  char fnbuf[48];
+  struct proc_stat ret = {0};
+  snprintf(fnbuf, sizeof(fnbuf), "/proc/%d/stat", pid);
+  FILE *f = fopen(fnbuf, "r");
+  if (!f)
+    return ret;
 
+  fscanf(f, "%d %*s %c %d %d %d %d %d", &ret.pid, &ret.state, &ret.ppid,
+         &ret.pgrp, &ret.session, &ret.tty_nr, &ret.tpgid);
+
+  return ret;
+}
+
+#define FILE_COLOUR(fname) (important_file(fname) ? C_CYAN : C_DIM)
+
+int col_widths[] = {7, 16, 16, 16, 7, 7, 1};
+
+const char *col_titles[] = {"PID",   "stdin", "stdout",  "stderr", "pgrp",
+                            "tpgid", "state"};
+
+void print_pid_info(pid_t pid, int colspec) {
+  static const char *fdsymbs[] = {" in=", "out=", "err="};
   // Print process's std file descriptors
   char **fdlinks = malloc(sizeof(char *) * 3);
   for (int i = 0; i < 3; i++) {
     fdlinks[i] = malloc(17);
   }
   get_stdfds(pid, fdlinks, 16);
+  struct proc_stat stat = read_stat(pid);
+
+  if ((colspec >> COL_PID) & 1) {
+    printf(C_YELLOW "%*d " C_RESET, col_widths[COL_PID], pid);
+  }
+  if ((colspec >> COL_STDIN) & 1) {
+    printf("%s%*.*s " C_RESET, FILE_COLOUR(fdlinks[STDIN_FILENO]),
+           col_widths[COL_STDIN], col_widths[COL_STDIN], fdlinks[STDIN_FILENO]);
+  }
+  if ((colspec >> COL_STDOUT) & 1) {
+    printf("%s%*.*s " C_RESET, FILE_COLOUR(fdlinks[STDOUT_FILENO]),
+           col_widths[COL_STDOUT], col_widths[COL_STDOUT],
+           fdlinks[STDOUT_FILENO]);
+  }
+  if ((colspec >> COL_STDERR) & 1) {
+    printf("%s%*.*s " C_RESET, FILE_COLOUR(fdlinks[STDERR_FILENO]),
+           col_widths[COL_STDERR], col_widths[COL_STDERR],
+           fdlinks[STDERR_FILENO]);
+  }
+  if ((colspec >> COL_PGRP) & 1) {
+    printf(C_MAGENTA "%*d " C_RESET, col_widths[COL_PGRP], stat.pgrp);
+  }
+  if ((colspec >> COL_TPGID) & 1) {
+    printf(C_GREEN "%*d " C_RESET, col_widths[COL_TPGID], stat.tpgid);
+  }
+  if ((colspec >> COL_STATE) & 1) {
+    printf("%*c ", col_widths[COL_STATE], stat.state);
+  }
+
   for (int i = 0; i < 3; i++) {
-    // Only print pipe fds
-    if (CFG_SHOW_ALL_STDFD || strncmp(fdlinks[i], "pipe:", 5) == 0) {
-      printf(C_MAGENTA " (" C_RESET "%s" C_MAGENTA " %s)" C_RESET, fdsymbs[i],
-             fdlinks[i]);
-    }
     free(fdlinks[i]);
   }
   free(fdlinks);
 }
 
-void treeprint_impl(tree *root, const char *pref, int edge) {
+void treeprint_impl(tree *root, const char *pref, int edge, int colspec) {
   if (!root)
     return;
 
-  printf("%s%s", pref, edge ? "└─ " : "├─ ");
-  print_pid_info(root->pid);
+  print_pid_info(root->pid, colspec);
+  if (edge == -1) {
+    printf("%s", pref);
+  } else {
+    printf(" %s%s", pref, edge ? "└─ " : "├─ ");
+  }
+
+  // Print process's cmdline args
+  printf(C_BLUE);
+  print_proc_cmdline(root->pid);
+  printf(C_RESET);
+
   printf("\n");
 
   char new_pref[256];
-  snprintf(new_pref, sizeof(new_pref), "%s%s", pref, edge ? "   " : "|  ");
+  snprintf(new_pref, sizeof(new_pref), "%s%s", pref,
+           edge == -1 ? ""
+           : edge     ? "   "
+                      : "|  ");
 
   LL_FOREACH(&root->children, el) {
     tree *subtree = el->data;
-    treeprint_impl(subtree, new_pref, !el->next);
+    treeprint_impl(subtree, new_pref, !el->next, colspec);
   }
 }
 
-void treeprint(tree *root) { treeprint_impl(root, "", 1); }
+void treeprint(tree *root, int colspec) {
+  for (int i = 0; i < N_COL_TYPES; i++) {
+    if ((colspec >> i) & 1) {
+      printf("%*.*s ", col_widths[i], col_widths[i], col_titles[i]);
+    }
+  }
+  printf("\n");
+
+  treeprint_impl(root, "", -1, colspec);
+}
 
 tree *treefind(tree *root, pid_t pid) {
   if (!root)

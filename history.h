@@ -1,7 +1,7 @@
 #ifndef __INCLUDE_HISTORY_H__
 #define __INCLUDE_HISTORY_H__
 
-#define HISTORY_SZ 25
+#define HISTORY_SZ 12
 
 #include <unistd.h>
 

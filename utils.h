@@ -12,7 +12,16 @@
 #define C_RESET "\033[0m"
 #define C_DIM "\033[2m"
 
-#define CFG_SHOW_ALL_STDFD 1
+enum {
+  COL_PID,
+  COL_STDIN,
+  COL_STDOUT,
+  COL_STDERR,
+  COL_PGRP,
+  COL_TPGID,
+  COL_STATE,
+  N_COL_TYPES
+};
 
 struct ll_node {
   void *data;
@@ -34,8 +43,7 @@ void *ll_pop_front(ll_list *list);
 unsigned long ll_len(ll_list *list);
 
 tree *mksubtree(pid_t pid);
-void treeprint_impl(tree *root, const char *pref, int edge);
-void treeprint(tree *root);
+void treeprint(tree *root, int colspec);
 tree *treefind(tree *root, pid_t pid);
 void treefree(tree *root);
 void treedel(tree *root, pid_t pid);

@@ -17,7 +17,7 @@ void screenfull(tree *root) {
   printf("\033[2J\033[H"); // Clear terminal and jump to top
   print_history();
   printf("Process Tree:\n");
-  treeprint(root);
+  treeprint(root, ~0);
 }
 
 void usage(const char *exe) {
@@ -35,19 +35,6 @@ int main(int argc, char *argv[]) {
   if (strcmp(argv[1], "-s") == 0) {
     fprintf(stderr, "Not implemented yet...\n");
     exit(EXIT_FAILURE);
-    // printf("Executing '%s'\n", argv[2]);
-    // pid = fork();
-    // if (pid == 0) {
-    //   if (ptrace(PTRACE_TRACEME, 0, NULL, NULL) == -1) {
-    //     perror("ptrace TRACEME");
-    //     exit(EXIT_FAILURE);
-    //   }
-    //   if (execvp(argv[2], &argv[2]) == -1) {
-    //     perror("execvp");
-    //     exit(EXIT_FAILURE);
-    //   }
-    // }
-    // printf("Will trace child, pid = %d\n", pid);
   } else {
     if (argc > 2) {
       fprintf(stderr, "Too many arguments.\n");

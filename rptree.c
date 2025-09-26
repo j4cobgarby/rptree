@@ -16,8 +16,7 @@ void tracer(pid_t);
 void screenfull(tree *root) {
   printf("\033[2J\033[H"); // Clear terminal and jump to top
   print_history();
-  printf("Process Tree:\n");
-  treeprint(root, ~0);
+  treeprint(root, ~(1 << COL_STDERR));
 }
 
 void usage(const char *exe) {

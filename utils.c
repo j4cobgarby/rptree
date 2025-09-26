@@ -260,12 +260,13 @@ void treeprint_impl(tree *root, const char *pref, int edge, int colspec) {
 }
 
 void treeprint(tree *root, int colspec) {
+  printf(C_BGWHITE C_BLACK);
   for (int i = 0; i < N_COL_TYPES; i++) {
     if ((colspec >> i) & 1) {
       printf("%*.*s ", col_widths[i], col_widths[i], col_titles[i]);
     }
   }
-  printf("\n");
+  printf("\n" C_RESET);
 
   treeprint_impl(root, "", -1, colspec);
 }

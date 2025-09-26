@@ -3,14 +3,26 @@
 
 #include <unistd.h>
 
+#define C_WHITE "\033[37m"
 #define C_CYAN "\033[36m"
 #define C_MAGENTA "\033[35m"
 #define C_BLUE "\033[34m"
 #define C_YELLOW "\033[33m"
 #define C_GREEN "\033[32m"
 #define C_RED "\033[31m"
+#define C_BLACK "\033[30m"
+
 #define C_RESET "\033[0m"
 #define C_DIM "\033[2m"
+
+#define C_BGWHITE "\033[47m"
+#define C_BGCYAN "\033[46m"
+#define C_BGMAGENTA "\033[45m"
+#define C_BGBLUE "\033[44m"
+#define C_BGYELLOW "\033[43m"
+#define C_BGGREEN "\033[42m"
+#define C_BGRED "\033[41m"
+#define C_BGBLACK "\033[40m"
 
 enum {
   COL_PID,

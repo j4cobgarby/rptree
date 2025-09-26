@@ -27,8 +27,7 @@ void push_history(enum hist_type t, pid_t pid, pid_t new_pid, tree *snapshot,
 void print_history() {
   int pptr = hptr;
 
-  printf("  #  Type    PID   Details\n");
-  printf("-------------------------------\n");
+  printf(C_BGWHITE C_BLACK "  #  Type    PID   Details\n" C_RESET);
   do {
     const hist_event *const ev = &history[--pptr];
     if (pptr == -1)

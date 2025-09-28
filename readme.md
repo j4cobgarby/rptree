@@ -6,7 +6,7 @@ A real-time process tree viewer and fork/exec/exit event monitor.
 
 **rptree** attaches to a process using the ptrace interface, and displays a live-updating view of the process tree originating on the chosen parent. It also displays a log of _events_: when processes call `fork()`, `exec()`, or `exit()`.
 
-<script src="https://asciinema.org/a/Rf1mGtrqevPuBgTfP6irYPSwb.js" id="asciicast-Rf1mGtrqevPuBgTfP6irYPSwb" async="true"></script>
+[![asciicast](https://asciinema.org/a/Rf1mGtrqevPuBgTfP6irYPSwb.svg)](https://asciinema.org/a/Rf1mGtrqevPuBgTfP6irYPSwb)
 
 The above recording shows a short demonstration of **rptree** tracing a bash shell. You can see fork events and processes in the tree whenever bash forks. Note the command with pipelines shows the pipes in the file descriptor fields of the table, and the redirected command to a file shows that as well.
 

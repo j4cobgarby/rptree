@@ -6,11 +6,11 @@ A real-time process tree viewer and fork/exec/exit event monitor.
 
 **rptree** attaches to a process using the ptrace interface, and displays a live-updating view of the process tree originating on the chosen parent. It also displays a log of _events_: when processes call `fork()`, `exec()`, or `exit()`.
 
-![Screenshot](screenshot1.png)
+<script src="https://asciinema.org/a/Rf1mGtrqevPuBgTfP6irYPSwb.js" id="asciicast-Rf1mGtrqevPuBgTfP6irYPSwb" async="true"></script>
 
-The above screenshot shows **rptree** with a bash instance as the parent. In this example, the user ran `ls` followed by `cat | grep word | wc -l`; only the latter is running at the time of the screenshot, whereas `ls` finished, as can be seen on line 6 of the history.
+The above recording shows a short demonstration of **rptree** tracing a bash shell. You can see fork events and processes in the tree whenever bash forks. Note the command with pipelines shows the pipes in the file descriptor fields of the table, and the redirected command to a file shows that as well.
 
-Notice that for processes whose stdout/in/err are attached to pipes, the pipe inode number is displayed in the tree.
+Although **rptree** is run with sudo in the recording, you **do not need sudo** to use rptree, as long as you have control of starting the process to monitor.
 
 ## Why?
 
@@ -67,7 +67,6 @@ There are quite a few things that would further improve this.
 
  - Save the tree state after each event, and use the up and down arrow keys to view historical tree states rather than the live one.
  - When viewing historical trees, as well as in general if desired, it would be good to be able to freeze the whole process tree's execution.
- - Show any pipes between processes.
  - It's not easy at a glance to distinguish between all the different PIDs.
    - Option A: colour-code the PIDs using random colours from a palette, so that you can more easily spot recurring PID actions.
    - Option B: based on the PIDs on the screen, highlight just the last few digits of each to emphasize the different part of the number.

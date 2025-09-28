@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/ioctl.h>
 
 static struct ll_node *mknode(void *data) {
   struct ll_node *node = malloc(sizeof(struct ll_node));
@@ -132,6 +133,12 @@ char *get_cmdline(pid_t pid) {
   return ret;
 }
 
+int win_cols() {
+  struct winsize w;
+  ioctl(0, TIOCGWINSZ, &w);
+  return w.ws_col;
+}
+
 void print_proc_cmdline(pid_t pid) {
   char *cmdline = get_cmdline(pid);
   printf("%s", cmdline);
@@ -187,8 +194,6 @@ const char *col_titles[] = {"PID",   "stdin", "stdout",  "stderr", "pgrp",
                             "tpgid", "state"};
 
 void print_pid_info(pid_t pid, int colspec) {
-  static const char *fdsymbs[] = {" in=", "out=", "err="};
-  // Print process's std file descriptors
   char **fdlinks = malloc(sizeof(char *) * 3);
   for (int i = 0; i < 3; i++) {
     fdlinks[i] = malloc(17);
@@ -261,11 +266,14 @@ void treeprint_impl(tree *root, const char *pref, int edge, int colspec) {
 
 void treeprint(tree *root, int colspec) {
   printf(C_BGWHITE C_BLACK);
+  int done_width = 0;
   for (int i = 0; i < N_COL_TYPES; i++) {
     if ((colspec >> i) & 1) {
       printf("%*.*s ", col_widths[i], col_widths[i], col_titles[i]);
+      done_width += col_widths[i] + 1;
     }
   }
+  printf("%*s", win_cols() - done_width, "");
   printf("\n" C_RESET);
 
   treeprint_impl(root, "", -1, colspec);

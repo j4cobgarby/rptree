@@ -61,6 +61,7 @@ void treefree(tree *root);
 void treedel(tree *root, pid_t pid);
 void treeadd(tree *root, pid_t parent, pid_t child);
 
+int win_cols();
 void print_proc_cmdline(pid_t pid);
 char *get_cmdline(pid_t pid);
 

@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/ioctl.h>
 #include <sys/ptrace.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -11,12 +12,19 @@
 #include "history.h"
 #include "utils.h"
 
+tree *root = NULL;
+
 void tracer(pid_t);
 
 void screenfull(tree *root) {
   printf("\033[2J\033[H"); // Clear terminal and jump to top
   print_history();
   treeprint(root, ~(1 << COL_STDERR));
+}
+
+void win_resize(int sig) {
+  if (root)
+    screenfull(root);
 }
 
 void usage(const char *exe) {
@@ -92,8 +100,11 @@ void initialise_tree(tree *root) {
 }
 
 void tracer(pid_t rootpid) {
-  tree *root = mksubtree(rootpid);
+  root = mksubtree(rootpid);
   initialise_tree(root);
+
+  signal(SIGWINCH, win_resize);
+
   int status;
 
   if (ptrace(PTRACE_SEIZE, rootpid, 0,
